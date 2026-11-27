@@ -48,6 +48,10 @@ app.post("/doctor", async(req , res) =>{
    doctorData.createAt = createAt;
    doctorData.status = status;
 
+   const doctorExits = await doctorCollection.findOne({userId: doctorData.userId});
+
+   if(!doctorExits){
+
    const result = await doctorCollection.insertOne(doctorData);
 
    if(result.acknowledged){
@@ -55,15 +59,29 @@ app.post("/doctor", async(req , res) =>{
    }else{
     res.send({success:false, message:"Doctor application submission failed"});
    }
-   
-
-
+  }
+  else{
+    res.send({success:false, message:"Doctor application already submitted"});
+  }
    
   }catch(err){
     console.log(err);
   }
 
+})
 
+// doctor application data
+
+app.get("/doctors-applications", async(req , res) =>{
+
+  try{
+
+    const findResult = await doctorCollection.find().toArray();
+    res.send({success:true, data:findResult});
+
+  }catch(err){
+    res.send({success:false, message:"Failed to fetch doctor applications"});
+  }
 
 })
 
